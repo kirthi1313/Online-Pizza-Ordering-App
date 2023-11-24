@@ -1,13 +1,9 @@
-# Project Title
-
-Pizza Ordering App Demo 
-
-## Description
+# Pizza Ordering App Demo 
 
 Application has been developed with the following technologies: 
-Angular 11,HTML5,CSS,Typescript - Client side 
-NodeJS - Server side
-PostgreSQL PHPPgAdmin Interface used to create Database. 
+* Angular 11,HTML5,CSS,Typescript - Client side 
+* NodeJS - Server side
+* PostgreSQL PHPPgAdmin Interface used to create Database. 
 
 ## Getting Started
 
@@ -20,7 +16,6 @@ PostgreSQL PHPPgAdmin Interface used to create Database.
 * PostgreSQL Database is used
 
 ### Executing program
-
 
 *  The "client" and "server" folders contain the respective code. 
 
