@@ -30,14 +30,14 @@ in Visual Studio Code and run the following commands in the terminal:
 	node index.js
 Now, the server is running in localhost:3000 in your machine
 
-3.To run the client, open the client folder
+3. To run the client, open the client folder
  in Visual Studio Code and run the following commands in the terminal:
 	npm i
 	npm start
 Now, the client is up in localhost:4200 by default
-4.Run the scripts in script file to create all the tables and functions required by the application to be available in the Database.
+4. Run the scripts in script file to create all the tables and functions required by the application to be available in the Database.
 
-5.The client now fetches the data from the PostgreSQL Database by connecting to the server running in the localhost:3000 port.
+5. The client now fetches the data from the PostgreSQL Database by connecting to the server running in the localhost:3000 port.
 
-6.The ordering application is now up and running in your machine!
+6. The ordering application is now up and running in your machine!
 
