@@ -1,9 +1,9 @@
 const Pool = require('pg').Pool
 const pool = new Pool({
     user: 'db2311168_rw',
-    host: 'pgsql.hrz.tu-chemnitz.de',
-    database: 'db2311168',
-    password: 'zae5Co6ueghi',
+    host: 'pgsql.hrz.xx.de',
+    database: 'db23111685',
+    password: 'zae5Co6ueghiou',
     port: 5432,
 })
 const url = require('url');
