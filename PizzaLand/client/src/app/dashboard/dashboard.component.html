@@ -1,0 +1,82 @@
+
+
+<mat-accordion>
+ <!-- <mat-expansion-panel class="p-2" *ngFor="let eachPizzen of pizzen" (opened)="onOpenPanel(eachPizzen)">
+    <mat-expansion-panel-header class="expansionPanel">
+      <img class="pizzaImg" src="../../assets/{{eachPizzen.imgName}}">
+      <span class="pizzaName">
+        {{eachPizzen.pizzenName}}
+    <p class="pizzaDescr">With {{eachPizzen.pizzadescription}}</p>
+    </span>
+      
+    </mat-expansion-panel-header>
+
+    <div class="pd">
+      You can customize this Pizza by adding more ingredients!
+      <br/>
+      <p class="headers pd">Add Extra Ingredients:</p>
+      <div class="ingredientAlignment">
+        <section class="example-section" *ngFor="let ing of ingredients">
+          <mat-checkbox class="example-margin" [(ngModel)]="ing.checked" (change)="onSelectIngredient(selected,eachPizzen)">{{ing.ingredientname}} - <label class="ingPrice">(€{{ing.ingredientprice}})</label></mat-checkbox>
+        </section>
+      </div>      
+    </div>
+    
+    <div class="headers">
+      Pizza Size:
+    <mat-form-field class="selectSize">
+      <mat-select [(value)]="selected" (selectionChange)="onSizeChange($event,eachPizzen)">
+        <mat-option *ngFor="let size of sizes" [value]="size.value">
+          {{ size.viewValue }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    </div>
+
+    <span class="sum">Total Price : <label style="font-weight: bold;font-style:italic">€{{sum}}</label></span>
+    <button mat-raised-button color="primary" style="float:right" (click)="proceedToOrder(eachPizzen)">Add</button>
+    
+  </mat-expansion-panel> -->
+
+  <mat-expansion-panel class="p-2" (opened)="onOpenPanel(eachPizzen)">
+    <mat-expansion-panel-header class="expansionPanel">
+      <!-- <img class="pizzaImg" src="../../assets/{{eachPizzen.imgName}}"> -->
+      <span class="pizzaName">
+        Create Your Pizza....
+    <!-- <p class="pizzaDescr">With {{eachPizzen.pizzadescription}}</p> -->
+    </span>
+
+      <!-- <span class="price">€{{eachPizzen.baseprice}}</span> -->
+      
+    </mat-expansion-panel-header>
+
+    <div class="pd">
+      You can customize this Pizza by adding more ingredients!
+      <br/>
+      <p class="headers pd">Add Extra Ingredients:</p>
+
+      <div class="ingredientAlignment">
+        <section class="example-section" *ngFor="let ing of ingredients">
+          <mat-checkbox class="example-margin" [(ngModel)]="ing.checked" (change)="onSelectIngredient(selected)">{{ing.ingredientName}} - <label class="ingPrice"> From {{ing.supplierAddress}} </label> - <label class="ingPrice">(€{{ing.ingredientPrice}})</label> </mat-checkbox>
+        </section>
+      </div>
+      
+    </div>
+    
+
+    <div class="headers">
+      Pizza Size:
+    <mat-form-field class="selectSize">
+      <mat-select [(value)]="selected" (selectionChange)="onSizeChange($event,eachPizzen)">
+        <mat-option *ngFor="let size of sizes" [value]="size.value">
+          {{ size.viewValue }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    </div>
+
+    <span class="sum">Total Price : <label style="font-weight: bold;font-style:italic">€{{sum}}</label></span>
+    <button mat-raised-button color="primary" style="float:right" (click)="proceedToOrder(selected)">Add</button>
+    
+  </mat-expansion-panel>
+</mat-accordion>

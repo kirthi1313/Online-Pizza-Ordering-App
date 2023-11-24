@@ -1,0 +1,33 @@
+<div>
+        <b>Restock Ingredient</b>
+    <br/>
+    <br/>
+    <form class="example-form">
+        <!-- <select (change)="onChangeSupplier($event)">
+        <option *ngFor="let supplier of data.suppliers" [value]="supplier.supplierId"
+            [attr.selected]="supplier.supplierName">
+            {{supplier.supplierName}}
+        </option>
+        </select> -->
+        <p>Supplier Name: {{data.supplierName}}</p>
+        <br/>   
+
+        <!-- <mat-form-field class="example-full-width"> -->
+            <mat-label>IngredientName: </mat-label> &nbsp;
+            <mat-label>{{data.ingredientName}}</mat-label>
+        <!-- </mat-form-field> -->
+        <br/>
+        <br/>   
+
+        <!-- <mat-form-field class="example-full-width"> -->
+            <mat-label>Quantity</mat-label>
+            <input matInput (change)="data.quantity = $event.target.value" value="{{data.quantity}}">
+        <!-- </mat-form-field> -->
+        <br/>
+        <br/>   
+
+
+        <button mat-raised-button class="btnAdd" *ngIf="data.suppliers[0] && data.suppliers[0].hide=='0'" (click)="restockIngredientEvent(data,data.selSupplier)">Restock</button>
+        </form>
+
+</div>

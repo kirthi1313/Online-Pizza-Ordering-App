@@ -1,0 +1,63 @@
+<div>
+    <div *ngIf="data.isEditOrDel!=='edit' && data.isEditOrDel!=='delete'">
+        <b>Add New Ingredient</b>
+    </div>
+    <div *ngIf="data.isEditOrDel=='edit'">
+        <b>Edit Ingredient</b>
+    </div>
+    
+    <br/>
+    <br/>
+    <form class="example-form" *ngIf="data.isEditOrDel!=='delete'">
+        <mat-form-field class="example-full-width">
+            <mat-label>Ingredient Name</mat-label>
+            <input matInput (change)="data.ingredientName = $event.target.value" value="{{data.ingredientName}}">
+        </mat-form-field>
+        <br/>
+        <mat-form-field class="example-full-width">
+            <mat-label>Ingredient Price</mat-label>
+            <input matInput (change)="data.ingredientPrice = $event.target.value" value="{{data.ingredientPrice}}">
+        </mat-form-field>
+        <br/>
+
+        <mat-form-field class="example-full-width">
+            <mat-label>Quantity</mat-label>
+            <input matInput (change)="data.quantity = $event.target.value" value="{{data.quantity}}">
+        </mat-form-field>
+        <br/>
+
+        <!-- <mat-form-field class="example-full-width"> -->
+            <mat-label>Supplier Name</mat-label>
+            <!-- <input matInput (change)="data.supplierName = $event.target.value" value="{{data.supplierName}}">
+        </mat-form-field>
+        <br/> -->
+        <div *ngIf="data.isEditOrDel!=='edit'">
+            <select (change)="onChangeSupplier($event)">
+                <option *ngFor="let supplier of data.suppliers" [value]="supplier.supplierId"
+                    [selected]="supplier.supplierName===data.supplierName">
+                    {{supplier.supplierName}}
+                </option>
+            </select>
+            <br />
+        </div>
+        <div *ngIf="data.isEditOrDel=='edit'">
+            <p>{{data.supplierName}}</p>
+            <br />
+        </div>
+        <!-- <mat-form-field class="example-full-width" *ngIf="data.isEditOrDel!=='edit'">
+            <mat-label>Region</mat-label>
+            <input matInput (change)="data.supplierAddress = $event.target.value" value="{{data.supplierAddress}}">
+        </mat-form-field>
+        <br/> -->
+
+        <button mat-raised-button class="btnAdd" *ngIf="data.isEditOrDel!=='edit'" (click)="addIngredientEvent(data)">Add</button>
+        <button mat-raised-button class="btnAdd" *ngIf="data.isEditOrDel=='edit'" (click)="addIngredientEvent(data)">Edit</button>
+
+        </form>
+
+    <div *ngIf="data.isEditOrDel=='delete'">
+        <p>Are you sure you want to delete {{data.ingredientName}} Supplier?</p>
+        <button (click)="addIngredientEvent(data)">Yes</button>
+        <button (click)="dialogRef.close()" style="float:right">Cancel</button>
+    </div>
+</div>

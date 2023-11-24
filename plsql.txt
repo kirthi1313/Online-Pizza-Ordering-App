@@ -1,0 +1,281 @@
+CREATE TABLE pizzen (
+	pizzaId	integer PRIMARY KEY,
+	pizzaName varchar(100) UNIQUE,
+	pizzaSize varchar(30) NOT NULL,
+	basePrice numeric(8,2) NOT NULL
+);
+
+CREATE TABLE ingredients(
+	ingredientId serial PRIMARY KEY,
+	ingredientName varchar(100) UNIQUE
+);
+
+CREATE TABLE customer(
+customerId serial PRIMARY KEY,
+customerName varchar(50) NOT NULL,
+customerEmail varchar(50) UNIQUE,
+password varchar(20) NOT NULL,
+userType boolean
+);
+
+create table orders (
+orderid SERIAL PRIMARY KEY,
+totalPrice numeric(8,2),
+ingredientList int[],
+customerid integer,
+pizzaid integer
+);
+
+ALTER TABLE orders
+   ADD CONSTRAINT fk_pizzaid
+   FOREIGN KEY (pizzaid) 
+   REFERENCES pizzen(pizzaid);
+ALTER TABLE orders
+   ADD CONSTRAINT fk_customerid
+   FOREIGN KEY (customerid) 
+   REFERENCES customer(customerId);
+
+
+create table suppliers (
+supplierid serial primary key,
+supplierName varchar(100) unique not null,
+supplierContact varchar(100) not null,
+supplierEmail varchar(100) not null,
+supplierAddress varchar(200),
+hide integer
+);
+
+CREATE TABLE supplier_ingredient(
+stockid SERIAL PRIMARY KEY,
+ingredientid INTEGER REFERENCES ingredients(ingredientId),
+supplierid INTEGER REFERENCES suppliers(supplierid),
+quantity integer,
+ingredientprice numeric(8,2),
+region varchar,
+hide integer
+);
+
+
+CREATE TABLE supplier_orders(
+supplier_order_id SERIAL PRIMARY KEY,
+ingredientid INTEGER REFERENCES ingredients(ingredientId),
+supplierid INTEGER REFERENCES suppliers(supplierid),
+quantity INTEGER
+);
+
+
+
+
+
+CREATE OR REPLACE FUNCTION getIngredients() RETURNS table(ingredientid int, ingredientname varchar, ingredientprice numeric(8,2), quantity int, hide int,supplierid int,suppliername varchar,stockid int,supplierAddress varchar) as $$
+DECLARE
+i int;
+begin
+return query SELECT ingredients.ingredientid,ingredients.ingredientname,si.ingredientprice,si.quantity,si.hide,si.supplierid, s.suppliername ,si.stockid,s.supplierAddress from ingredients inner join supplier_ingredient si on ingredients.ingredientid=si.ingredientid inner join suppliers s on s.supplierid=si.supplierid where si.hide=0 and si.quantity>0;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION getOrders() RETURNS table(orderid int, pizzaname varchar, pizzasize varchar, totalprice numeric(8,2), customerEmail varchar,ingredientList int [],ingredientname  varchar[],supplierAddress varchar []) as $$
+begin
+return query SELECT orders.orderid,pizzen.pizzaname, pizzen.pizzasize, orders.totalprice, customer.customerEmail,orders.ingredientList, array_agg( ingredients.ingredientname ) AS ingredientName,array_agg(suppliers.supplierAddress ) AS supplierAddress  FROM pizzen INNER JOIN orders ON pizzen.pizzaid= orders.pizzaid inner join supplier_ingredient si on si.stockid = any(orders.ingredientList) inner join ingredients on ingredients.ingredientid=si.ingredientid inner join suppliers on suppliers.supplierid=si.supplierid inner join customer on customer.customerid=orders.customerid group by orders.orderid,pizzen.pizzaname, pizzen.pizzasize, orders.totalprice,customer.customerEmail, orders.ingredientList;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION getAllSuppliers() RETURNS table(supplierid int, suppliername varchar, suppliercontact varchar, supplieremail varchar, supplieraddress varchar,hide int) as $$
+begin
+return query SELECT suppliers.supplierid,suppliers.suppliername,suppliers.suppliercontact,suppliers.supplieremail,suppliers.supplieraddress,suppliers.hide from suppliers;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION getSuppliers() RETURNS table(supplierid int, suppliername varchar, suppliercontact varchar, supplieremail varchar, supplieraddress varchar,hide int) as $$
+begin
+return query SELECT suppliers.supplierid,suppliers.suppliername,suppliers.suppliercontact,suppliers.supplieremail,suppliers.supplieraddress,suppliers.hide from suppliers where suppliers.hide=0;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION getSuppliersRestock(in id int) RETURNS table(supplierid int, suppliername varchar, suppliercontact varchar, supplieremail varchar, supplieraddress varchar,hide int) as $$
+
+begin
+return query SELECT distinct suppliers.supplierid,suppliers.suppliername,suppliers.suppliercontact,suppliers.supplieremail,suppliers.supplieraddress,suppliers.hide from suppliers inner join supplier_ingredient si on suppliers.supplierid=si.supplierid where si.ingredientid=id and si.hide=0;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION checkPriceBasedOnSize( IN size anyelement, IN name anyelement) returns numeric(8,2) AS $$ 
+declare price numeric(8,2);
+BEGIN
+select baseprice into price from pizzen where pizzaname=name and pizzasize=size;
+return price;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE or replace FUNCTION checkPriceOverall(in ingredientList INT[],in size text,in name text) RETURNS numeric(8,2) AS $$ 
+declare 
+price numeric(8,2);
+basePizzaPrice numeric(8,2);
+itemPrice price%type;
+sum price%type := 0.00;
+i integer;
+j integer;
+BEGIN
+select baseprice into basePizzaPrice from pizzen where pizzaname=name and pizzasize=size;
+FOREACH i IN array ingredientList 
+   LOOP 
+      select ingredientid into j from supplier_ingredient where stockid=i;
+      select ingredientprice into itemPrice from ingredients where ingredientid=j;
+      sum = sum +  itemPrice;
+   END LOOP;
+sum = sum + basePizzaPrice;
+return sum;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION ingredient_stock(in ingredientList int[]) RETURNS void AS
+$$
+DECLARE
+i int := 0;
+
+BEGIN
+IF array_length(ingredientList, 1) > 0 THEN
+FOREACH i IN array ingredientList
+LOOP
+UPDATE supplier_ingredient SET quantity=quantity-1 WHERE stockid=i;
+END LOOP;
+END IF;
+END;
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE OR REPLACE FUNCTION addOrders(in inputPrice numeric(8,2), in name varchar ,inputIngredientIds int[],in customerData varchar) RETURNS void AS
+$$
+DECLARE
+id int := 0;
+customer_id int := 0;
+BEGIN
+	SELECT pizzaid into id from pizzen where pizzaname=name;
+    select customerid into customer_id from customer where customeremail=customerData;
+    INSERT INTO orders (totalprice,pizzaid,ingredientList,customerid) VALUES (inputPrice, id ,inputIngredientIds,customer_id);
+PERFORM ingredient_stock(inputIngredientIds);
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION addCustomer(in name varchar, in email varchar, in password varchar) RETURNS void AS
+$$
+BEGIN
+    INSERT INTO customer (customerName, customerEmail, password, userType) VALUES(name, email, password, 'FALSE');
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION addSupplier(in name varchar, in contact varchar,in email varchar, in address varchar) RETURNS void AS
+$$
+BEGIN
+    INSERT INTO suppliers (suppliername,suppliercontact,supplieremail,supplieraddress,hide) VALUES(name ,contact,email,address,0);
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION editSupplier(in name varchar, in contact varchar,in email varchar, in address varchar, in hideValue int, in id int) RETURNS void AS
+$$
+BEGIN
+UPDATE suppliers SET suppliername = name ,supplieraddress = address ,suppliercontact = contact,supplieremail = email,hide= hideValue WHERE suppliers.supplierid= id;
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION deleteSupplier(in id int) RETURNS void AS
+$$
+BEGIN
+DELETE FROM suppliers s WHERE s.supplierid = id;
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION addIngredient(in name varchar, in price numeric(8,2),in quantity int, in region varchar, in supplierid integer) RETURNS void AS
+$$
+DECLARE
+i int;
+ct int;
+BEGIN
+   select count(*) into ct from ingredients where ingredientname = name;
+   if ct then
+     select ingredientid into i from ingredients where ingredientname = name;
+     INSERT INTO supplier_ingredient(ingredientid, supplierid,ingredientprice,quantity,region,hide) VALUES(i, supplierid, price,quantity,region,0);
+   else
+     INSERT INTO ingredients (ingredientname) VALUES(name) returning ingredientid into i;
+     INSERT INTO supplier_ingredient(ingredientid, supplierid,ingredientprice,quantity,region,hide) VALUES(i, supplierid, price,quantity,region,0);
+   END if;
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION editIngredients(in name varchar, in price numeric(8,2), in availQuantity int,in regionalProvince varchar,in hideValue int,in id int) RETURNS void AS
+$$
+declare
+sid int;
+ing_id int;
+BEGIN
+select supplierid into sid from supplier_ingredient where stockid=id;
+select ingredientid into ing_id from supplier_ingredient where stockid=id;
+ 
+update supplier_ingredient set ingredientprice = price ,quantity= availQuantity,region=regionalProvince ,hide=hideValue,supplierid=sid,ingredientid=ing_id where stockid=id;
+
+UPDATE ingredients SET ingredientname = name WHERE ingredients.ingredientid=(select ingredientid from supplier_ingredient where stockid=id);
+
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE or replace FUNCTION deleteIngredient(in id int) RETURNS void AS
+$$
+BEGIN
+DELETE FROM ingredients s WHERE s.ingredientid = id;
+END
+$$
+LANGUAGE 'plpgsql';
+
+
+CREATE OR REPLACE FUNCTION add_stock(in ingredient_id integer, in supplierid integer, in qty integer) RETURNS void AS
+$$
+declare
+ id int;
+BEGIN
+UPDATE supplier_ingredient SET quantity=quantity+qty WHERE stockid=ingredient_id;
+select ingredientid into id from supplier_ingredient where stockid=id;
+INSERT INTO supplier_orders(ingredientid, supplierid, quantity) VALUES(id, supplierid, qty);
+END;
+$$
+LANGUAGE 'plpgsql';
+
+
+
+CREATE OR REPLACE FUNCTION check_customer(in email varchar, in pass varchar) RETURNS int AS
+$$
+DECLARE
+temp INT:=0;
+BEGIN
+	SELECT COUNT(*) into temp FROM customer WHERE customeremail=email AND password=pass;
+	IF temp != 0 THEN
+		RETURN 1;
+	ELSE
+		RETURN 0;
+	END IF;
+END;
+$$
+LANGUAGE 'plpgsql';
+

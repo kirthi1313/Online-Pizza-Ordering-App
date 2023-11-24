@@ -1,0 +1,43 @@
+<div>
+    <div *ngIf="data.isEditOrDel!=='edit' && data.isEditOrDel!=='delete'">
+        <b>Add New Supplier</b>
+    </div>
+    <div *ngIf="data.isEditOrDel=='edit'">
+        <b>Edit New Supplier</b>
+    </div>
+    <br/>
+    <br/>
+    <form class="example-form" *ngIf="data.isEditOrDel!=='delete'">
+        <mat-form-field class="example-full-width">
+            <mat-label>Supplier Name</mat-label>
+            <input matInput (change)="data.supplierName = $event.target.value" value="{{data.supplierName}}">
+        </mat-form-field>
+        <br/>
+        <mat-form-field class="example-full-width">
+            <mat-label>Supplier Address</mat-label>
+            <input matInput (change)="data.supplierAddress = $event.target.value" value="{{data.supplierAddress}}">
+        </mat-form-field>
+        <br/>
+
+        <mat-form-field class="example-full-width">
+            <mat-label>Supplier Contact</mat-label>
+            <input matInput (change)="data.supplierContact = $event.target.value" value="{{data.supplierContact}}">
+        </mat-form-field>
+        <br/>
+
+        <mat-form-field class="example-full-width">
+            <mat-label>Supplier Email</mat-label>
+            <input matInput (change)="data.supplierEmail = $event.target.value" value="{{data.supplierEmail}}">
+        </mat-form-field>
+        <br/>
+        <button mat-raised-button class="btnAdd" *ngIf="data.isEditOrDel!=='edit'" (click)="addSupplierEvent(data)">Add</button>
+        <button mat-raised-button class="btnAdd" *ngIf="data.isEditOrDel=='edit'" (click)="addSupplierEvent(data)">Edit</button>
+
+        </form>
+
+    <div *ngIf="data.isEditOrDel=='delete'">
+        <p>Are you sure you want to delete {{data.supplierName}} Supplier?</p>
+        <button (click)="addSupplierEvent(data)">Yes</button>
+        <button (click)="dialogRef.close()" style="float:right">Cancel</button>
+    </div>
+</div>

@@ -1,0 +1,120 @@
+<!-- <h1>{{title}}</h1>
+<nav>
+  <a routerLink="/dashboard">Dashboard</a>
+  <a routerLink="/heroes">Heroes</a>
+</nav>
+<router-outlet></router-outlet>
+<app-messages></app-messages> -->
+<!-- <div class="mat-app-background basic-container">
+  <mat-toolbar color="primary">My App
+    <span>Application Title</span>
+
+    <span class="example-fill-remaining-space"></span>
+
+    <span>Right Aligned Text</span>
+  </mat-toolbar>
+</div> -->
+<!-- <div class="container">
+  <div class="row col-12">
+  </div>
+  <router-outlet></router-outlet>
+</div> -->
+
+<div *ngIf="showLogin" style="background-color:white;width:30%;margin:15%;padding:5%">
+  <p>New User? Click here to Register  &nbsp;<button mat-raised-button (click)="showRegister=true">Register</button></p>
+
+  <div *ngIf="showRegister">
+    Register:
+    <form class="example-form">
+      <mat-form-field class="example-full-width">
+        <mat-label>User Name</mat-label>
+        <input matInput (change)="data.userName = $event.target.value" value="{{data.userName}}">
+      </mat-form-field>
+      <br />
+      <mat-form-field class="example-full-width">
+        <mat-label>Email</mat-label>
+        <input matInput (change)="data.email = $event.target.value" value="{{data.email}}">
+      </mat-form-field>
+      <br />
+      <mat-form-field class="example-full-width">
+        <mat-label>Password</mat-label>
+        <input matInput (change)="data.pwd = $event.target.value" type="password" value="{{data.pwd}}">
+      </mat-form-field>
+      <br />
+      <p *ngIf="userMsg">User Registered Successfully!</p>
+
+      <button mat-raised-button class="btnAdd" (click)="register(data)">Register</button>
+
+      <button mat-raised-button class="btnAdd" (click)="goToLogin(data)">Go to Login</button>
+
+      
+      </form>
+  </div>
+
+  <div *ngIf="!showRegister">
+    Login:
+    <form class="example-form">
+      <mat-form-field class="example-full-width">
+          <mat-label>User ID</mat-label>
+          <input matInput (change)="data.email = $event.target.value" value="{{data.email}}">
+      </mat-form-field>
+      <br/>
+      <mat-form-field class="example-full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" (change)="data.pwd = $event.target.value" value="{{data.pwd}}">
+      </mat-form-field>
+      <br/>
+      <p *ngIf="errorMsg">Invalid User Details</p>
+      <button mat-raised-button class="btnAdd" (click)="login(data)">Login</button>
+      </form>
+  </div>
+  
+</div>
+
+  <div id="navbar" *ngIf="!showLogin && !showRegister">
+    <mat-card class="headerClass">
+      <button mat-raised-button color="primary" class="btnOrderSummary" (click)="viewOrders()" *ngIf="!isBaker">View PreComposed Pizza</button>
+      <button mat-raised-button color="primary" class="btnOrderSummary" (click)="viewOrders()" *ngIf="isBaker">Order Summary</button>
+
+      <button mat-raised-button color="primary" class="btnLogOut" (click)="logOut()">Log Out</button>
+      <button mat-raised-button color="primary" class="btnLogOut" *ngIf="!isBaker" (click)="createOrder()">Create Order</button>
+      
+      <!-- <span style="float:right;padding:10px" class="tag">Please Select the User Type :
+        <mat-form-field>
+          <mat-select [(value)]="selected" placeholder="User Type" (selectionChange)="onUserTypeChange()">
+            <mat-option *ngFor="let user of userType" [value]="user.value">
+              {{ user.viewValue }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span> -->
+    
+      <p class="name">
+        <span style="font-size:45px">
+          <img style="width:50px;height:50px"
+            src="../assets/icon.png">
+          Pizza Land</span>
+      </p>
+    
+      <span class="tag">Time to customize your Pizzas!!</span>
+    
+    
+    
+    </mat-card>
+    </div>
+    
+<section (scroll)="onWindowScroll($event);">  
+    <div class="container" *ngIf="!showLogin">
+      <div class="row col-12">
+        <router-outlet></router-outlet>
+    
+      </div>
+    </div>
+</section> 
+
+
+
+<!-- <mat-card class="demo_wrap">
+  <h1>Welcome to PizzaLand!</h1>
+  <img src="../assets/images.PNG">
+</mat-card> -->
